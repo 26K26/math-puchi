@@ -3,7 +3,7 @@ const quizData = [];
 for (let i = 1; i <= 20; i++) {
   quizData.push({ question: `${i}^2`, answer: (i * i).toString() });
 }
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbzSRUa_PAvEsaDFVohp23I0CvM8Kkv6XDSDUxZ1TYRBdF85dxhmVmQ_W8PLpowbzV0yfA/exec';
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbwQ3d4LnSBzRsBRR4Vsoy5l_UN6ckB4p85D_Ez40wNIGinO_YfoC72PVHuXclv-fTvb9w/exec';
 let currentQuestionIndex = 0;
 let answers = [];
 let hasSubmitted = false;
@@ -82,7 +82,7 @@ function submitAnswers() {
       answers
     }),
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'text/plain'
     }
   }).then(() => {
     alert('解答を送信しました。');
