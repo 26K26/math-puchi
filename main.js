@@ -3,7 +3,7 @@ const quizData = [];
 for (let i = 1; i <= 20; i++) {
   quizData.push({ question: `${i}^2`, answer: (i * i).toString() });
 }
-const GAS_URL = 'https://script.google.com/a/macros/tanabe-ed.com/s/AKfycbz-4z0jXl30FeYDBXZLc0Mqq0jaeEW9LX02pcYRLj1uvvHUckA5PlR9CfLV1Ld9SdqC/exec';
+const GAS_URL = 'https://script.google.com/a/macros/tanabe-ed.com/s/AKfycbwG_tyBPog7mlmFIwiME1qXjCSKeWplPxFN0EsJsjb3k1HqK3WzyAme6H1syJWCs1KO/exec';
 let currentQuestionIndex = 0;
 let answers = [];
 let hasSubmitted = false;
