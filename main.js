@@ -2,9 +2,7 @@ const quizData = [];
 for (let i = 1; i <= 20; i++) {
   quizData.push({ question: `${i}^2`, answer: (i * i).toString() });
 }
-
 const GAS_URL = 'https://script.google.com/a/macros/tanabe-ed.com/s/AKfycbz-4z0jXl30FeYDBXZLc0Mqq0jaeEW9LX02pcYRLj1uvvHUckA5PlR9CfLV1Ld9SdqC/exec';
-
 let currentQuestionIndex = 0;
 let answers = [];
 
@@ -21,21 +19,16 @@ function showQuestion() {
     submitAnswers();
     return;
   }
-  document.getElementById('question-text').innerHTML = `\\(${quizData[currentQuestionIndex].question}\\) =`;
+  document.getElementById('question-text').innerHTML = `\(${quizData[currentQuestionIndex].question}\) =`;
   document.getElementById('answer-input').value = '';
   MathJax.typeset();
 }
 
 document.getElementById('next-button').addEventListener('click', nextQuestion);
-
-document.addEventListener('keydown', function (e) {
+document.addEventListener('keydown', function(e) {
   if (e.key === 'Enter') {
     e.preventDefault();
-    const active = document.activeElement;
-    // 入力欄にフォーカスがある場合だけ次の問題へ
-    if (active.id === 'answer-input') {
-      nextQuestion();
-    }
+    nextQuestion();
   }
 });
 
@@ -43,30 +36,21 @@ function nextQuestion() {
   const input = document.getElementById('answer-input').value.trim();
   answers.push(input);
   currentQuestionIndex++;
-
-  if (currentQuestionIndex >= quizData.length) {
-    submitAnswers();
-  } else {
-    showQuestion();
-  }
+  showQuestion();
 }
 
 function insertSymbol(sym) {
   const input = document.getElementById('answer-input');
   input.value += sym;
-  input.focus();  // 常に入力欄にフォーカスを戻す
 }
 
 function backspace() {
   const input = document.getElementById('answer-input');
   input.value = input.value.slice(0, -1);
-  input.focus();
 }
 
 function clearInput() {
-  const input = document.getElementById('answer-input');
-  input.value = '';
-  input.focus();
+  document.getElementById('answer-input').value = '';
 }
 
 function handleVisibilityChange() {
@@ -79,11 +63,6 @@ function submitAnswers() {
   const name = document.getElementById('name').value;
   const grade = document.getElementById('grade').value;
   const cls = document.getElementById('class').value;
-
-  // イベント無効化（重複送信防止）
-  document.removeEventListener('keydown', handleVisibilityChange);
-  document.removeEventListener('visibilitychange', handleVisibilityChange);
-
   fetch(GAS_URL, {
     method: 'POST',
     body: JSON.stringify({
@@ -98,7 +77,5 @@ function submitAnswers() {
   }).then(() => {
     alert('解答を送信しました。');
     location.reload();
-  }).catch(() => {
-    alert('送信に失敗しました。インターネット接続を確認してください。');
   });
 }
