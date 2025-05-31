@@ -2,12 +2,11 @@ const quizData = [];
 for (let i = 1; i <= 20; i++) {
   quizData.push({ question: `${i}^2`, answer: (i * i).toString() });
 }
-const GAS_URL = 'https://script.google.com/macros/s/AKfycby1RakykU-Sn_mpA-1g1rgjUOolyvEPxjfLOfavng-C1GeAvQjsbArBi2vx4JK2zKXv6Q/exec'; // ← 適切なURLに置き換えてください
-
+const GAS_URL = 'YOUR_GAS_URL_HERE';
 let currentQuestionIndex = 0;
 let answers = [];
-let timerInterval;
-let remainingTime = 60 * 5; // 5分（必要に応じて調整）
+let correctCount = 0;
+let timer; let timeLeft = 300;
 
 document.getElementById('user-form').addEventListener('submit', function (e) {
   e.preventDefault();
@@ -23,20 +22,20 @@ function showQuestion() {
     submitAnswers();
     return;
   }
-  const q = quizData[currentQuestionIndex];
-  document.getElementById('question-text').innerHTML = `\\(${q.question.replace("^2", "^{2}")}\\) =`;
+  document.getElementById('question-text').innerHTML = `\\(${quizData[currentQuestionIndex].question}\\) =`;
   document.getElementById('answer-input').value = '';
   MathJax.typeset();
 }
 
 document.getElementById('next-button').addEventListener('click', nextQuestion);
-document.addEventListener('keydown', function (e) {
+document.addEventListener('keydown', function(e) {
   if (e.key === 'Enter') nextQuestion();
 });
 
 function nextQuestion() {
   const input = document.getElementById('answer-input').value.trim();
   answers.push(input);
+  if (input === quizData[currentQuestionIndex].answer) correctCount++;
   currentQuestionIndex++;
   showQuestion();
 }
@@ -55,56 +54,41 @@ function clearInput() {
   document.getElementById('answer-input').value = '';
 }
 
+function startTimer() {
+  const timerDiv = document.getElementById('timer');
+  timer = setInterval(() => {
+    const minutes = Math.floor(timeLeft / 60);
+    const seconds = timeLeft % 60;
+    timerDiv.textContent = `残り時間: ${minutes}:${seconds.toString().padStart(2, '0')}`;
+    if (timeLeft <= 0) {
+      clearInterval(timer);
+      submitAnswers();
+    }
+    timeLeft--;
+  }, 1000);
+}
+
 function handleVisibilityChange() {
   if (document.visibilityState === 'hidden') {
     submitAnswers();
   }
 }
 
-function startTimer() {
-  updateTimerDisplay();
-  timerInterval = setInterval(() => {
-    remainingTime--;
-    updateTimerDisplay();
-    if (remainingTime <= 0) {
-      clearInterval(timerInterval);
-      submitAnswers();
-    }
-  }, 1000);
-}
-
-function updateTimerDisplay() {
-  const min = Math.floor(remainingTime / 60);
-  const sec = remainingTime % 60;
-  document.getElementById('timer').textContent = `残り時間: ${min}:${sec.toString().padStart(2, '0')}`;
-}
-
 function submitAnswers() {
-  clearInterval(timerInterval);
-
+  clearInterval(timer);
   const name = document.getElementById('name').value;
   const grade = document.getElementById('grade').value;
   const cls = document.getElementById('class').value;
-
-  const score = quizData.reduce((acc, q, i) =>
-    acc + (answers[i] === q.answer ? 1 : 0), 0);
-  const incorrect = quizData
-    .map((q, i) => (answers[i] !== q.answer ? `${q.question}=${answers[i]}（正:${q.answer}）` : null))
-    .filter(Boolean);
+  const wrongAnswers = quizData.map((q, i) => (q.answer !== answers[i]) ? `${q.question} → ${answers[i]}` : null).filter(Boolean);
 
   fetch(GAS_URL, {
     method: 'POST',
     body: JSON.stringify({
-      name,
-      grade,
-      class: cls,
-      answers,
-      score,
-      reason: incorrect.join("; ")
+      name, grade, class: cls, answers, score: correctCount, reason: wrongAnswers.join(', ')
     }),
     headers: { 'Content-Type': 'application/json' }
   }).then(() => {
-    alert(`${quizData.length}問中${score}問正解でした。\n\n【間違い】\n${incorrect.join("\n") || "なし"}`);
+    alert(`送信完了！${quizData.length}問中${correctCount}問正解でした。\n間違い: ${wrongAnswers.join(', ')}`);
     location.reload();
   });
 }
