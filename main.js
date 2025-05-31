@@ -22,6 +22,7 @@ function showQuestion() {
     submitAnswers();
     return;
   }
+  
   document.getElementById('question-text').innerHTML = `\\(${quizData[currentQuestionIndex].question}\\) =`;
   document.getElementById('answer-input').value = '';
   MathJax.typeset();
