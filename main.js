@@ -2,7 +2,7 @@ const quizData = [];
 for (let i = 1; i <= 20; i++) {
   quizData.push({ question: `${i}^2`, answer: (i * i).toString() });
 }
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbzX3YageANOXWkJIThdw20Gr4HVshlAmsiycB6aaMB-NynO3Or_lf2wTdFkpt8_vVsC2Q/exec';
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbzHx_is-u_72w2mMONJx0Dgh5WZtgHca1eSGSaKZpjE5S4ZtCYnM-Vqz1zKz1sr-TqEzw/exec';
 let currentQuestionIndex = 0;
 let answers = [];
 let correctCount = 0;
@@ -81,13 +81,12 @@ function submitAnswers() {
   const cls = document.getElementById('class').value;
   const wrongAnswers = quizData.map((q, i) => (q.answer !== answers[i]) ? `${q.question} → ${answers[i]}` : null).filter(Boolean);
 
-  fetch(GAS_URL, {
-    method: 'POST',
-    body: JSON.stringify({
-      name, grade, class: cls, answers, score: correctCount, reason: wrongAnswers.join(', ')
-    }),
-    headers: { 'Content-Type': 'application/json' }
-  }).then(() => {
+fetch(GAS_URL, {
+  method: 'POST',
+  body: JSON.stringify({/* データ */}),
+  headers: { 'Content-Type': 'text/plain' // application/json → text/plainに変更
+  }
+}).then(() => {
     alert(`送信完了！${quizData.length}問中${correctCount}問正解でした。\n間違い: ${wrongAnswers.join(', ')}`);
     location.reload();
   });
