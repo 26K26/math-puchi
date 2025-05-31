@@ -6,7 +6,7 @@ const GAS_URL = 'YOUR_GAS_URL_HERE';
 let currentQuestionIndex = 0;
 let answers = [];
 let correctCount = 0;
-let timer; let timeLeft = 210;
+let timer; let timeLeft = 180;
 
 document.getElementById('user-form').addEventListener('submit', function (e) {
   e.preventDefault();
