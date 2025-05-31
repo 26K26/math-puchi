@@ -80,22 +80,35 @@ function submitAnswers() {
   const name = document.getElementById('name').value;
   const grade = document.getElementById('grade').value;
   const cls = document.getElementById('class').value;
-  const wrongAnswers = quizData.map((q, i) => (q.answer !== answers[i]) ? `${q.question} → ${answers[i]}` : null).filter(Boolean);
- 
+
+  // 回答数が足りない場合の補完
+  while (answers.length < quizData.length) {
+    answers.push('');
+  }
+
+  const wrongAnswers = quizData.map((q, i) => 
+    (q.answer !== answers[i]) ? `${q.question} → ${answers[i]}` : null
+  ).filter(Boolean);
+
   fetch(GAS_URL, {
     method: 'POST',
-    body: JSON.stringify({/* データ */}),
-    headers: { 
-      'Content-Type': 'text/plain', // 必須変更
-      'X-Requested-With': 'XMLHttpRequest' // 追加
-    },
-    redirect: 'follow' // リダイレクト許可
+    body: JSON.stringify({
+      name, grade, class: cls, 
+      answers, score: correctCount, 
+      reason: wrongAnswers.join(', ')
+    }),
+    headers: { 'Content-Type': 'text/plain' }
   })
-.then(response => {
-  if (!response.ok) throw new Error('Network response was not ok');
-  return response.text();
-})
-.catch(err => {
-  console.error('Fetch Error:', err);
-  alert('送信エラー: ' + err.message);
-});
+  .then(response => {
+    if (!response.ok) throw new Error('Network response was not ok');
+    return response.text();
+  })
+  .then(() => {
+    alert(`送信完了！${quizData.length}問中${correctCount}問正解`);
+    location.reload();
+  })
+  .catch(err => {
+    console.error('Fetch Error:', err);
+    alert('送信エラー: ' + err.message);
+  });
+}
