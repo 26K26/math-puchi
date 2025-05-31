@@ -9,6 +9,7 @@
     src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </head>
 <body>
+  <div id="timer"></div>
   <div id="start-screen">
     <h2>【注意事項】</h2>
     <p>・このテスト中に他の画面を開くと、自動的に送信されます。</p>
@@ -21,9 +22,7 @@
       <button type="submit">開始</button>
     </form>
   </div>
-
   <div id="quiz-screen" style="display: none;">
-    <div id="timer"></div>
     <div id="question-container">
       <div id="question-text"></div>
       <input id="answer-input" type="text" readonly>
@@ -54,7 +53,6 @@
     </div>
     <button id="next-button">次へ</button>
   </div>
-
   <script src="main.js"></script>
 </body>
 </html>
