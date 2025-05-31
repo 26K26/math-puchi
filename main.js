@@ -11,13 +11,16 @@ let correctCount = 0;
 let incorrectDetails = [];
 let timerInterval;
 
-document.getElementById('user-form').addEventListener('submit', function (e) {
-  e.preventDefault();
-  document.getElementById('start-screen').style.display = 'none';
-  document.getElementById('quiz-screen').style.display = 'block';
-  document.addEventListener('visibilitychange', handleVisibilityChange);
-  startTimer();
-  showQuestion();
+// MathJaxの初期化完了を待つ
+MathJax.startup.promise.then(() => {
+  document.getElementById('user-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    document.getElementById('start-screen').style.display = 'none';
+    document.getElementById('quiz-screen').style.display = 'block';
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    startTimer();
+    showQuestion();
+  });
 });
 
 function showQuestion() {
@@ -30,14 +33,13 @@ function showQuestion() {
   questionEl.innerHTML = `\\(${quizData[currentQuestionIndex].question}\\) =`;
   document.getElementById('answer-input').value = '';
 
-  // MathJaxで数式を再描画
   MathJax.typesetPromise();
 }
 
 document.getElementById('next-button').addEventListener('click', nextQuestion);
 document.addEventListener('keydown', function(e) {
   if (e.key === 'Enter') {
-    e.preventDefault(); // ページリロードを防止
+    e.preventDefault();
     nextQuestion();
   }
 });
