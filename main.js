@@ -82,13 +82,11 @@ function submitAnswers() {
   const cls = document.getElementById('class').value;
   const wrongAnswers = quizData.map((q, i) => (q.answer !== answers[i]) ? `${q.question} → ${answers[i]}` : null).filter(Boolean);
 
-fetch(GAS_URL, {
-  method: 'POST',
-  body: JSON.stringify({/* データ */}),
-  headers: { 'Content-Type': 'text/plain' // application/json → text/plainに変更
-  }
-}).then(() => {
-    alert(`送信完了！${quizData.length}問中${correctCount}問正解でした。\n間違い: ${wrongAnswers.join(', ')}`);
-    location.reload();
-  });
-}
+.then(response => {
+  if (!response.ok) throw new Error('Network response was not ok');
+  return response.text();
+})
+.catch(err => {
+  console.error('Fetch Error:', err);
+  alert('送信エラー: ' + err.message);
+});
