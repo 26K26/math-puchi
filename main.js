@@ -11,7 +11,7 @@ let answers = [];
 let correctCount = 0;
 let incorrectDetails = [];
 let timerInterval;
-let timeLeft = 300;
+let timeLeft = 210;
 
 document.getElementById('user-form').addEventListener('submit', function (e) {
   e.preventDefault();
@@ -45,8 +45,9 @@ function showQuestion() {
   }
 
   document.getElementById('question-text').innerHTML = `\\(${quizData[currentQuestionIndex].question}\\) =`;
+MathJax.typesetPromise(); // ← これも必要;
   document.getElementById('answer-input').value = '';
-  MathJax.typesetPromise();
+  
 }
 
 document.getElementById('next-button').addEventListener('click', nextQuestion);
