@@ -109,36 +109,35 @@ function submitAnswers() {
   ).filter(Boolean);
 
   // 修正箇所: fetch処理の完全なチェーン
-  fetch(GAS_URL, {
+ fetch(GAS_URL, {
     method: 'POST',
     body: JSON.stringify({
-      name, 
-      grade, 
-      class: cls,
+      name, grade, class: cls,
       answers: answers.slice(0, quizData.length),
       score: correctCount,
       reason: wrongAnswers.join(', ') || 'なし'
     }),
-    headers: { 
+    headers: {
       'Content-Type': 'text/plain',
       'X-Requested-With': 'XMLHttpRequest'
     },
-    redirect: 'follow'
+    redirect: 'manual' // 変更箇所
   })
   .then(response => {
-    if (!response.ok) {
-      throw new Error(`HTTPエラー: ${response.status}`);
+    // GASのリダイレクト対策
+    if (response.type === 'opaqueredirect') {
+      throw new Error('リダイレクトがブロックされました');
     }
+    if (!response.ok) throw new Error(`HTTPエラー: ${response.status}`);
     return response.text();
   })
   .then(result => {
     console.log('送信成功:', result);
-    alert(`${correctCount}/${quizData.length}問正解！`);
-    location.reload();
+    alert('結果を記録しました！');
+    location.href = '完了ページのURL'; // 明示的な遷移
   })
   .catch(error => {
-    console.error('送信エラー:', error);
-    alert(`エラー: ${error.message}`);
-    location.reload();
+    console.error('エラー詳細:', error);
+    alert(`送信失敗: ${error.message}\n管理者へ連絡してください`);
   });
 }
