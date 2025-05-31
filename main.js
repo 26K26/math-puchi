@@ -2,7 +2,7 @@ const quizData = [];
 for (let i = 1; i <= 20; i++) {
   quizData.push({ question: `${i}^2`, answer: (i * i).toString() });
 }
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbzHx_is-u_72w2mMONJx0Dgh5WZtgHca1eSGSaKZpjE5S4ZtCYnM-Vqz1zKz1sr-TqEzw/exec';
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbw8DkxAdoE_uiU47kudymJKmQI-pkJRpWQ1MGT504PqIQ4x6MetrmGDB1VheOfLU7gPNA/exec';
 let currentQuestionIndex = 0;
 let answers = [];
 let correctCount = 0;
@@ -81,7 +81,16 @@ function submitAnswers() {
   const grade = document.getElementById('grade').value;
   const cls = document.getElementById('class').value;
   const wrongAnswers = quizData.map((q, i) => (q.answer !== answers[i]) ? `${q.question} → ${answers[i]}` : null).filter(Boolean);
-
+ 
+  fetch(GAS_URL, {
+    method: 'POST',
+    body: JSON.stringify({/* データ */}),
+    headers: { 
+      'Content-Type': 'text/plain', // 必須変更
+      'X-Requested-With': 'XMLHttpRequest' // 追加
+    },
+    redirect: 'follow' // リダイレクト許可
+  })
 .then(response => {
   if (!response.ok) throw new Error('Network response was not ok');
   return response.text();
