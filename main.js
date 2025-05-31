@@ -29,9 +29,22 @@ function showQuestion() {
     submitAnswers();
     return;
   }
-  document.getElementById('question-text').innerHTML = `\\(${quizData[currentQuestionIndex].question}\\) =`;
-  document.getElementById('answer-input').value = '';
-  MathJax.typeset();
+
+  const questionElement = document.getElementById('question-text');
+  const answerInput = document.getElementById('answer-input');
+  
+  // 問題文更新
+  questionElement.innerHTML = `\\(${quizData[currentQuestionIndex].question}\\) =`;
+  answerInput.value = '';
+
+  // MathJaxレンダリング（Promise使用）
+  MathJax.typesetPromise([questionElement])
+    .then(() => {
+      console.log('数式レンダリング成功');
+    })
+    .catch(err => {
+      console.error('数式レンダリングエラー:', err);
+    });
 }
 
 document.getElementById('next-button').addEventListener('click', nextQuestion);
