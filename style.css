@@ -2,30 +2,27 @@ body {
   font-family: Arial, sans-serif;
   text-align: center;
   margin: 20px;
+  font-size: 20px;
+}
+#question-text {
+  font-size: 30px;
+  margin-bottom: 20px;
+}
+#answer-input {
+  font-size: 24px;
+  width: 240px;
+  margin: 10px;
 }
 #keypad button {
   margin: 3px;
-  padding: 10px;
+  padding: 12px;
   font-size: 18px;
 }
-#answer-input {
-  font-size: 28px;
-  width: 250px;
-  margin: 20px;
-}
-#question-text {
-  font-size: 32px;
-  margin: 20px;
-}
 #timer {
-  position: fixed;
+  position: absolute;
   top: 10px;
   right: 20px;
   font-size: 20px;
   font-weight: bold;
-  background-color: #fff;
-  padding: 5px 10px;
-  border: 2px solid #000;
-  border-radius: 5px;
-  z-index: 999;
 }
+
