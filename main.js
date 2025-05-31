@@ -4,7 +4,7 @@ for (let i = 1; i <= 20; i++) {
 }
 
 // [重要] 最新のGASデプロイURLに置き換えてください
-const GAS_URL = 'https://script.google.com/macros/s/あなたのデプロイID/exec';
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbw8DkxAdoE_uiU47kudymJKmQI-pkJRpWQ1MGT504PqIQ4x6MetrmGDB1VheOfLU7gPNA/exec';
 
 let currentQuestionIndex = 0;
 let answers = [];
