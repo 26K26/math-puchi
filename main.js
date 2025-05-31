@@ -2,7 +2,7 @@ const quizData = [];
 for (let i = 1; i <= 20; i++) {
   quizData.push({ question: `${i}^2`, answer: (i * i).toString() });
 }
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbx3b-J_oJH-UJvVmnOTooGA6iduump_lQ7ZA5Tx-r3yyZ8pNGpb_QikPuJa3Xdg6-k_Rw/exec';
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbxIbJ5hqzFjI3GElEWhnmGP5cITn7a7t2WERRGLd7e6V-y2N1ZV3urBH8vlybDV5XTCpQ/exec';
 let currentQuestionIndex = 0;
 let answers = [];
 let correctCount = 0;
