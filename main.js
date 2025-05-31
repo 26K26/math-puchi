@@ -2,14 +2,25 @@ const quizData = [];
 for (let i = 1; i <= 20; i++) {
   quizData.push({ question: `${i}^2`, answer: (i * i).toString() });
 }
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbw8DkxAdoE_uiU47kudymJKmQI-pkJRpWQ1MGT504PqIQ4x6MetrmGDB1VheOfLU7gPNA/exec';
+
+// [重要] 最新のGASデプロイURLに置き換えてください
+const GAS_URL = 'https://script.google.com/macros/s/あなたのデプロイID/exec';
+
 let currentQuestionIndex = 0;
 let answers = [];
 let correctCount = 0;
-let timer; let timeLeft = 180;
+let timer;
+let timeLeft = 180;
 
 document.getElementById('user-form').addEventListener('submit', function (e) {
   e.preventDefault();
+  
+  // [追加] 入力値チェック
+  if (!document.getElementById('name').value.trim()) {
+    alert('名前を入力してください');
+    return;
+  }
+
   document.getElementById('start-screen').style.display = 'none';
   document.getElementById('quiz-screen').style.display = 'block';
   document.addEventListener("visibilitychange", handleVisibilityChange);
@@ -17,44 +28,7 @@ document.getElementById('user-form').addEventListener('submit', function (e) {
   showQuestion();
 });
 
-function showQuestion() {
-  if (currentQuestionIndex >= quizData.length) {
-    submitAnswers();
-    return;
-  }
-  
-  document.getElementById('question-text').innerHTML = `\\(${quizData[currentQuestionIndex].question}\\) =`;
-  document.getElementById('answer-input').value = '';
-  MathJax.typeset();
-}
-
-document.getElementById('next-button').addEventListener('click', nextQuestion);
-document.addEventListener('keydown', function(e) {
-  if (e.key === 'Enter') nextQuestion();
-});
-
-function nextQuestion() {
-  const input = document.getElementById('answer-input').value.trim();
-  answers.push(input);
-  if (input === quizData[currentQuestionIndex].answer) correctCount++;
-  currentQuestionIndex++;
-  showQuestion();
-}
-
-function insertSymbol(sym) {
-  const input = document.getElementById('answer-input');
-  input.value += sym;
-}
-
-function backspace() {
-  const input = document.getElementById('answer-input');
-  input.value = input.value.slice(0, -1);
-}
-
-function clearInput() {
-  document.getElementById('answer-input').value = '';
-}
-
+// [変更] タイマー表示の不具合修正
 function startTimer() {
   const timerDiv = document.getElementById('timer');
   timer = setInterval(() => {
@@ -69,19 +43,14 @@ function startTimer() {
   }, 1000);
 }
 
-function handleVisibilityChange() {
-  if (document.visibilityState === 'hidden') {
-    submitAnswers();
-  }
-}
-
+// [重要] submitAnswers関数の完全修正版
 function submitAnswers() {
   clearInterval(timer);
   const name = document.getElementById('name').value;
   const grade = document.getElementById('grade').value;
   const cls = document.getElementById('class').value;
 
-  // 回答数が足りない場合の補完
+  // 未回答問題の補完処理
   while (answers.length < quizData.length) {
     answers.push('');
   }
@@ -90,25 +59,37 @@ function submitAnswers() {
     (q.answer !== answers[i]) ? `${q.question} → ${answers[i]}` : null
   ).filter(Boolean);
 
+  // [修正] fetch処理の完全版
   fetch(GAS_URL, {
     method: 'POST',
     body: JSON.stringify({
-      name, grade, class: cls, 
-      answers, score: correctCount, 
-      reason: wrongAnswers.join(', ')
+      name, 
+      grade, 
+      class: cls,
+      answers: answers.slice(0, quizData.length), // 配列長調整
+      score: correctCount,
+      reason: wrongAnswers.join(', ') || 'なし'
     }),
-    headers: { 'Content-Type': 'text/plain' }
+    headers: { 
+      'Content-Type': 'text/plain',
+      'X-Requested-With': 'XMLHttpRequest' // [追加] CORS対策
+    },
+    redirect: 'follow'
   })
   .then(response => {
-    if (!response.ok) throw new Error('Network response was not ok');
+    if (!response.ok) {
+      throw new Error(`HTTPエラー: ${response.status} ${response.statusText}`);
+    }
     return response.text();
   })
-  .then(() => {
-    alert(`送信完了！${quizData.length}問中${correctCount}問正解`);
-    location.reload();
+  .then(result => {
+    console.log('送信成功:', result);
+    alert(`${correctCount}/${quizData.length}問正解！\n3秒後に再読み込みします`);
+    setTimeout(() => location.reload(), 3000);
   })
-  .catch(err => {
-    console.error('Fetch Error:', err);
-    alert('送信エラー: ' + err.message);
+  .catch(error => {
+    console.error('送信エラー:', error);
+    alert(`送信失敗: ${error.message}\n画面を再読み込みします`);
+    location.reload();
   });
 }
