@@ -5,11 +5,10 @@
   <title>中学生用数学小テスト</title>
   <link rel="stylesheet" href="style.css">
   <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script id="MathJax-script" async
-    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </head>
 <body>
-  <div id="timer"></div>
+  <div id="timer">残り時間: <span id="time-left">300</span> 秒</div>
   <div id="start-screen">
     <h2>【注意事項】</h2>
     <p>・このテスト中に他の画面を開くと、自動的に送信されます。</p>
@@ -53,6 +52,7 @@
     </div>
     <button id="next-button">次へ</button>
   </div>
+  <div id="result-screen" style="display: none;"></div>
   <script src="main.js"></script>
 </body>
 </html>
