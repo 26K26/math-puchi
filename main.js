@@ -2,8 +2,9 @@ const quizData = [];
 for (let i = 1; i <= 20; i++) {
   quizData.push({ question: `${i}^2`, answer: (i * i).toString() });
 }
-const GAS_URL = 'https://script.google.com/macros/s/AKfycby1RakykU-Sn_mpA-1g1rgjUOolyvEPxjfLOfavng-C1GeAvQjsbArBi2vx4JK2zKXv6Q/exec
-  ';
+
+const GAS_URL = 'https://script.google.com/macros/s/AKfycby1RakykU-Sn_mpA-1g1rgjUOolyvEPxjfLOfavng-C1GeAvQjsbArBi2vx4JK2zKXv6Q/exec';
+
 let currentQuestionIndex = 0;
 let answers = [];
 let correctCount = 0;
@@ -24,14 +25,21 @@ function showQuestion() {
     submitAnswers();
     return;
   }
-  document.getElementById('question-text').innerHTML = `\(${quizData[currentQuestionIndex].question}\) =`;
+
+  const questionEl = document.getElementById('question-text');
+  questionEl.innerHTML = `\\(${quizData[currentQuestionIndex].question}\\) =`;
   document.getElementById('answer-input').value = '';
-  MathJax.typeset();
+
+  // MathJaxで数式を再描画
+  MathJax.typesetPromise();
 }
 
 document.getElementById('next-button').addEventListener('click', nextQuestion);
 document.addEventListener('keydown', function(e) {
-  if (e.key === 'Enter') nextQuestion();
+  if (e.key === 'Enter') {
+    e.preventDefault(); // ページリロードを防止
+    nextQuestion();
+  }
 });
 
 function nextQuestion() {
@@ -83,6 +91,7 @@ function startTimer() {
 function submitAnswers() {
   clearInterval(timerInterval);
   document.getElementById('quiz-screen').style.display = 'none';
+
   const name = document.getElementById('name').value;
   const grade = document.getElementById('grade').value;
   const cls = document.getElementById('class').value;
@@ -104,5 +113,5 @@ function submitAnswers() {
     headers: {
       'Content-Type': 'application/json'
     }
-  });
+  }).catch(error => console.error('送信エラー:', error));
 }
