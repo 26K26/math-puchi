@@ -92,7 +92,7 @@ function submitAnswers() {
     .map((q, i) => (answers[i] !== q.answer ? `${q.question}=${answers[i]}（正:${q.answer}）` : null))
     .filter(Boolean);
 
-  fetch(GAS_URL, {
+  fetch(https://script.google.com/macros/s/AKfycbzRH0MwxHTrYEO1x7NuJ_ohOX8OhiWmlRpiz2JJaRY4x1AfsuJPm-soOuXKr64ITa8-Dw/exec, {
     method: 'POST',
     body: JSON.stringify({
       name,
