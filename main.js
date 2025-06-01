@@ -105,6 +105,6 @@ function submitAnswers() {
     headers: { 'Content-Type': 'application/json' }
   }).then(() => {
     alert(`${quizData.length}問中${score}問正解でした。\n\n【間違い】\n${incorrect.join("\n") || "なし"}`);
-    location.reload();
+  
   });
 }
