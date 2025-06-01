@@ -2,22 +2,15 @@ const quizData = [];
 for (let i = 1; i <= 20; i++) {
   quizData.push({ question: `${i}^2`, answer: (i * i).toString() });
 }
-
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbzRH0MwxHTrYEO1x7NuJ_ohOX8OhiWmlRpiz2JJaRY4x1AfsuJPm-soOuXKr64ITa8-Dw/exec
-  ';
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbzRH0MwxHTrYEO1x7NuJ_ohOX8OhiWmlRpiz2JJaRY4x1AfsuJPm-soOuXKr64ITa8-Dw/exec'; // ← 適切なURLに置き換えてください
 
 let currentQuestionIndex = 0;
 let answers = [];
-let correctCount = 0;
-let timer;
-let timeLeft = 180;
+let timerInterval;
+let remainingTime = 60 * 3; // 5分（必要に応じて調整）
 
 document.getElementById('user-form').addEventListener('submit', function (e) {
   e.preventDefault();
-  if (!document.getElementById('name').value.trim()) {
-    alert('名前を入力してください');
-    return;
-  }
   document.getElementById('start-screen').style.display = 'none';
   document.getElementById('quiz-screen').style.display = 'block';
   document.addEventListener("visibilitychange", handleVisibilityChange);
@@ -30,33 +23,20 @@ function showQuestion() {
     submitAnswers();
     return;
   }
-
-  const questionElement = document.getElementById('question-text');
-  const answerInput = document.getElementById('answer-input');
-  
-  // 問題文更新
-  questionElement.innerHTML = `\\(${quizData[currentQuestionIndex].question}\\) =`;
-  answerInput.value = '';
-
-  // MathJaxレンダリング（Promise使用）
-  MathJax.typesetPromise([questionElement])
-    .then(() => {
-      console.log('数式レンダリング成功');
-    })
-    .catch(err => {
-      console.error('数式レンダリングエラー:', err);
-    });
+  const q = quizData[currentQuestionIndex];
+  document.getElementById('question-text').innerHTML = `\\(${q.question.replace("^2", "^{2}")}\\) =`;
+  document.getElementById('answer-input').value = '';
+  MathJax.typeset();
 }
 
 document.getElementById('next-button').addEventListener('click', nextQuestion);
-document.addEventListener('keydown', function(e) {
+document.addEventListener('keydown', function (e) {
   if (e.key === 'Enter') nextQuestion();
 });
 
 function nextQuestion() {
   const input = document.getElementById('answer-input').value.trim();
   answers.push(input);
-  if (input === quizData[currentQuestionIndex].answer) correctCount++;
   currentQuestionIndex++;
   showQuestion();
 }
@@ -75,70 +55,56 @@ function clearInput() {
   document.getElementById('answer-input').value = '';
 }
 
-function startTimer() {
-  const timerDiv = document.getElementById('timer');
-  timer = setInterval(() => {
-    const minutes = Math.floor(timeLeft / 60);
-    const seconds = timeLeft % 60;
-    timerDiv.textContent = `残り時間: ${minutes}:${seconds.toString().padStart(2, '0')}`;
-    if (timeLeft <= 0) {
-      clearInterval(timer);
-      submitAnswers();
-    }
-    timeLeft--;
-  }, 1000);
-}
-
 function handleVisibilityChange() {
   if (document.visibilityState === 'hidden') {
     submitAnswers();
   }
 }
 
+function startTimer() {
+  updateTimerDisplay();
+  timerInterval = setInterval(() => {
+    remainingTime--;
+    updateTimerDisplay();
+    if (remainingTime <= 0) {
+      clearInterval(timerInterval);
+      submitAnswers();
+    }
+  }, 1000);
+}
+
+function updateTimerDisplay() {
+  const min = Math.floor(remainingTime / 60);
+  const sec = remainingTime % 60;
+  document.getElementById('timer').textContent = `残り時間: ${min}:${sec.toString().padStart(2, '0')}`;
+}
+
 function submitAnswers() {
-  clearInterval(timer);
+  clearInterval(timerInterval);
+
   const name = document.getElementById('name').value;
   const grade = document.getElementById('grade').value;
   const cls = document.getElementById('class').value;
 
-  while (answers.length < quizData.length) {
-    answers.push('');
-  }
+  const score = quizData.reduce((acc, q, i) =>
+    acc + (answers[i] === q.answer ? 1 : 0), 0);
+  const incorrect = quizData
+    .map((q, i) => (answers[i] !== q.answer ? `${q.question}=${answers[i]}（正:${q.answer}）` : null))
+    .filter(Boolean);
 
-  const wrongAnswers = quizData.map((q, i) => 
-    (q.answer !== answers[i]) ? `${q.question} → ${answers[i]}` : null
-  ).filter(Boolean);
-
-  // 修正箇所: fetch処理の完全なチェーン
- fetch(GAS_URL, {
+  fetch(GAS_URL, {
     method: 'POST',
     body: JSON.stringify({
-      name, grade, class: cls,
-      answers: answers.slice(0, quizData.length),
-      score: correctCount,
-      reason: wrongAnswers.join(', ') || 'なし'
+      name,
+      grade,
+      class: cls,
+      answers,
+      score,
+      reason: incorrect.join("; ")
     }),
-    headers: {
-      'Content-Type': 'text/plain',
-      'X-Requested-With': 'XMLHttpRequest'
-    },
-    redirect: 'manual' // 変更箇所
-  })
-  .then(response => {
-    // GASのリダイレクト対策
-    if (response.type === 'opaqueredirect') {
-      throw new Error('リダイレクトがブロックされました');
-    }
-    if (!response.ok) throw new Error(`HTTPエラー: ${response.status}`);
-    return response.text();
-  })
-  .then(result => {
-    console.log('送信成功:', result);
-    alert('結果を記録しました！');
-    location.href = '完了ページのURL'; // 明示的な遷移
-  })
-  .catch(error => {
-    console.error('エラー詳細:', error);
-    alert(`送信失敗: ${error.message}\n管理者へ連絡してください`);
+    headers: { 'Content-Type': 'application/json' }
+  }).then(() => {
+    alert(`${quizData.length}問中${score}問正解でした。\n\n【間違い】\n${incorrect.join("\n") || "なし"}`);
+    location.reload();
   });
 }
