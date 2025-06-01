@@ -3,7 +3,8 @@ for (let i = 1; i <= 20; i++) {
   quizData.push({ question: `${i}^2`, answer: (i * i).toString() });
 }
 
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbyslzA-z6CuvigPFQr6_9B3ltxBFy6iMDrFbwzzG7-UXHaBP_xHXdZp0ocrEI-LpyxP5A/exec';
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbzRH0MwxHTrYEO1x7NuJ_ohOX8OhiWmlRpiz2JJaRY4x1AfsuJPm-soOuXKr64ITa8-Dw/exec
+  ';
 
 let currentQuestionIndex = 0;
 let answers = [];
