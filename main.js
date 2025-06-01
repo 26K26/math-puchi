@@ -2,7 +2,7 @@ const quizData = [];
 for (let i = 1; i <= 20; i++) {
   quizData.push({ question: `${i}^2`, answer: (i * i).toString() });
 }
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbzyg5vhbe5uwihWQvhPXVa1Vbi_xODAzNTpVFs3RFUGFlX2aJ2GBSQYcWdhz590vPzAGQ/exec'; // ← 適切なURLに置き換えてください
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbx2mjSFrSErZP532Vy6qImGjlaaIFMc-3Lgmfc5uJiuITq5dJy8GyextYNGM5VpFYycUA/exec'; // ← 適切なURLに置き換えてください
 
 let currentQuestionIndex = 0;
 let answers = [];
@@ -94,7 +94,7 @@ function submitAnswers() {
 
  fetch(GAS_URL, {
   method: 'POST',
-  mode: 'cors', // ← CORSを明示
+  mode: 'cors',
   headers: {
     'Content-Type': 'application/json'
   },
@@ -107,8 +107,8 @@ function submitAnswers() {
     reason: incorrect.join("; ")
   })
 })
-.then(response => response.text())
-.then(responseText => {
+.then(response => response.json())
+.then(data => {
   alert(`${quizData.length}問中${score}問正解でした。\n\n【間違い】\n${incorrect.join("\n") || "なし"}`);
   location.reload();
 })
