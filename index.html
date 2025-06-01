@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <title>中学生用数学小テスト</title>
   <link rel="stylesheet" href="style.css">
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
   <script id="MathJax-script" async
     src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </head>
@@ -22,7 +23,7 @@
   </div>
 
   <div id="quiz-screen" style="display: none;">
-    <div id="timer" class="timer"></div>
+    <div id="timer"></div>
     <div id="question-container">
       <div id="question-text"></div>
       <input id="answer-input" type="text" readonly>
@@ -52,12 +53,6 @@
       <button onclick="clearInput()">クリア</button>
     </div>
     <button id="next-button">次へ</button>
-  </div>
-
-  <div id="result-screen" style="display: none;">
-    <h2>結果</h2>
-    <p id="score"></p>
-    <ul id="mistake-list"></ul>
   </div>
 
   <script src="main.js"></script>
