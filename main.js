@@ -2,7 +2,7 @@ const quizData = [];
 for (let i = 1; i <= 20; i++) {
   quizData.push({ question: `${i}^2`, answer: (i * i).toString() });
 }
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbzRH0MwxHTrYEO1x7NuJ_ohOX8OhiWmlRpiz2JJaRY4x1AfsuJPm-soOuXKr64ITa8-Dw/exec'; // ← 適切なURLに置き換えてください
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbwf6JwSY_JzhR0QbKUI4bMJDTKfh-5HpWgXYKEtop8D8o5JmiGYivaDcFU0-aqjdtulcQ/exec'; // ← 適切なURLに置き換えてください
 
 let currentQuestionIndex = 0;
 let answers = [];
@@ -92,7 +92,7 @@ function submitAnswers() {
     .map((q, i) => (answers[i] !== q.answer ? `${q.question}=${answers[i]}（正:${q.answer}）` : null))
     .filter(Boolean);
 
-  fetch(https://script.google.com/macros/s/AKfycbzRH0MwxHTrYEO1x7NuJ_ohOX8OhiWmlRpiz2JJaRY4x1AfsuJPm-soOuXKr64ITa8-Dw/exec, {
+  fetch(https://script.google.com/macros/s/AKfycbwf6JwSY_JzhR0QbKUI4bMJDTKfh-5HpWgXYKEtop8D8o5JmiGYivaDcFU0-aqjdtulcQ/exec, {
     method: 'POST',
     body: JSON.stringify({
       name,
