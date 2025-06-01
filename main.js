@@ -92,19 +92,27 @@ function submitAnswers() {
     .map((q, i) => (answers[i] !== q.answer ? `${q.question}=${answers[i]}（正:${q.answer}）` : null))
     .filter(Boolean);
 
-  fetch(https://script.google.com/macros/s/AKfycbwf6JwSY_JzhR0QbKUI4bMJDTKfh-5HpWgXYKEtop8D8o5JmiGYivaDcFU0-aqjdtulcQ/exec, {
-    method: 'POST',
-    body: JSON.stringify({
-      name,
-      grade,
-      class: cls,
-      answers,
-      score,
-      reason: incorrect.join("; ")
-    }),
-    headers: { 'Content-Type': 'application/json' }
-  }).then(() => {
-    alert(`${quizData.length}問中${score}問正解でした。\n\n【間違い】\n${incorrect.join("\n") || "なし"}`);
-  
-  });
-}
+ fetch(GAS_URL, {
+  method: 'POST',
+  mode: 'cors', // ← CORSを明示
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    name,
+    grade,
+    class: cls,
+    answers,
+    score,
+    reason: incorrect.join("; ")
+  })
+})
+.then(response => response.text())
+.then(responseText => {
+  alert(`${quizData.length}問中${score}問正解でした。\n\n【間違い】\n${incorrect.join("\n") || "なし"}`);
+  location.reload();
+})
+.catch(error => {
+  console.error('送信エラー:', error);
+  alert('データ送信中にエラーが発生しました');
+});
