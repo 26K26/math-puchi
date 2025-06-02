@@ -3,7 +3,7 @@ for (let i = 1; i <= 20; i++) {
   quizData.push({ question: `${i}^2`, answer: (i * i).toString() });
 }
 
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbyUBfzd81027j3AyZc-usU3UyhCIpD-FQ6Sed6gtxE7YbZY_Yr7-PiD7YjUht4G0Pug/exec';
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbzaEbohb33NPS8iYg8YmCB46xcd99OwvjuV28EUXt9elnQ7DTzaFJkcmF8r0ez_BIXEZQ/exec';
 
 let currentQuestionIndex = 0;
 let answers = [];
@@ -98,7 +98,6 @@ function submitAnswers() {
   const grade = document.getElementById('grade').value;
   const cls = document.getElementById('class').value;
 
-  // 残りの未入力を空で埋める（何らかの理由で飛ばされた場合）
   while (answers.length < quizData.length) {
     answers.push("");
   }
@@ -113,28 +112,21 @@ function submitAnswers() {
         : null))
     .filter(Boolean);
 
-  fetch(GAS_URL, {
-    method: 'POST',
-    mode: 'cors',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      name,
-      grade,
-      class: cls,
-      answers,
-      score,
-      reason: incorrect.join("; ")
-    })
-  })
-    .then(response => response.text())
-    .then(data => {
-      alert(`${quizData.length}問中${score}問正解でした。\n\n【間違い】\n${incorrect.join("\n") || "なし"}`);
-      location.reload();
-    })
-    .catch(error => {
-      console.error('送信エラー:', error);
-      alert('データ送信中にエラーが発生しました');
-    });
+  const query = new URLSearchParams({
+    name,
+    grade,
+    class: cls,
+    answers: answers.join(','),
+    score: score.toString(),
+    reason: incorrect.join('; ')
+  });
+
+  fetch(`${GAS_URL}?${query.toString()}`, {
+    method: 'GET',
+    mode: 'no-cors'
+  });
+
+  // 成績表示（送信成功確認できないため即時表示）
+  alert(`${quizData.length}問中${score}問正解でした。\n\n【間違い】\n${incorrect.join("\n") || "なし"}`);
+  location.reload();
 }
