@@ -27,16 +27,27 @@ function showQuestion() {
   const q = quizData[currentQuestionIndex];
   document.getElementById('question-text').innerHTML = `\\(${q.question.replace("^2", "^{2}")}\\) =`;
   document.getElementById('answer-input').value = '';
-  MathJax.typeset();
+  // MathJax再描画
+  if (window.MathJax) {
+    MathJax.typesetPromise();
+  }
 }
 
 document.getElementById('next-button').addEventListener('click', nextQuestion);
+
 document.addEventListener('keydown', function (e) {
-  if (e.key === 'Enter') nextQuestion();
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    nextQuestion();
+  }
 });
 
 function nextQuestion() {
   const input = document.getElementById('answer-input').value.trim();
+  if (input === "") {
+    alert("答えを入力してください");
+    return;
+  }
   answers.push(input);
   currentQuestionIndex++;
   showQuestion();
@@ -87,10 +98,19 @@ function submitAnswers() {
   const grade = document.getElementById('grade').value;
   const cls = document.getElementById('class').value;
 
+  // 残りの未入力を空で埋める（何らかの理由で飛ばされた場合）
+  while (answers.length < quizData.length) {
+    answers.push("");
+  }
+
   const score = quizData.reduce((acc, q, i) =>
     acc + (answers[i] === q.answer ? 1 : 0), 0);
+
   const incorrect = quizData
-    .map((q, i) => (answers[i] !== q.answer ? `${q.question}=${answers[i]}（正:${q.answer}）` : null))
+    .map((q, i) =>
+      (answers[i] !== q.answer
+        ? `${q.question}=${answers[i] || "未入力"}（正:${q.answer}）`
+        : null))
     .filter(Boolean);
 
   fetch(GAS_URL, {
@@ -108,13 +128,13 @@ function submitAnswers() {
       reason: incorrect.join("; ")
     })
   })
-  .then(response => response.text()) // GAS からの応答形式による
-  .then(data => {
-    alert(`${quizData.length}問中${score}問正解でした。\n\n【間違い】\n${incorrect.join("\n") || "なし"}`);
-    location.reload();
-  })
-  .catch(error => {
-    console.error('送信エラー:', error);
-    alert('データ送信中にエラーが発生しました');
-  });
+    .then(response => response.text())
+    .then(data => {
+      alert(`${quizData.length}問中${score}問正解でした。\n\n【間違い】\n${incorrect.join("\n") || "なし"}`);
+      location.reload();
+    })
+    .catch(error => {
+      console.error('送信エラー:', error);
+      alert('データ送信中にエラーが発生しました');
+    });
 }
