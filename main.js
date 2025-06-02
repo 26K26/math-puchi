@@ -53,4 +53,68 @@ function backspace() {
 }
 
 function clearInput() {
-  document.getElementById
+  document.getElementById('answer-input').value = '';
+}
+
+function handleVisibilityChange() {
+  if (document.visibilityState === 'hidden') {
+    submitAnswers();
+  }
+}
+
+function startTimer() {
+  updateTimerDisplay();
+  timerInterval = setInterval(() => {
+    remainingTime--;
+    updateTimerDisplay();
+    if (remainingTime <= 0) {
+      clearInterval(timerInterval);
+      submitAnswers();
+    }
+  }, 1000);
+}
+
+function updateTimerDisplay() {
+  const min = Math.floor(remainingTime / 60);
+  const sec = remainingTime % 60;
+  document.getElementById('timer').textContent = `残り時間: ${min}:${sec.toString().padStart(2, '0')}`;
+}
+
+function submitAnswers() {
+  clearInterval(timerInterval);
+
+  const name = document.getElementById('name').value;
+  const grade = document.getElementById('grade').value;
+  const cls = document.getElementById('class').value;
+
+  const score = quizData.reduce((acc, q, i) =>
+    acc + (answers[i] === q.answer ? 1 : 0), 0);
+  const incorrect = quizData
+    .map((q, i) => (answers[i] !== q.answer ? `${q.question}=${answers[i]}（正:${q.answer}）` : null))
+    .filter(Boolean);
+
+  fetch(GAS_URL, {
+    method: 'POST',
+    mode: 'cors',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      name,
+      grade,
+      class: cls,
+      answers,
+      score,
+      reason: incorrect.join("; ")
+    })
+  })
+  .then(response => response.text()) // GAS からの応答形式による
+  .then(data => {
+    alert(`${quizData.length}問中${score}問正解でした。\n\n【間違い】\n${incorrect.join("\n") || "なし"}`);
+    location.reload();
+  })
+  .catch(error => {
+    console.error('送信エラー:', error);
+    alert('データ送信中にエラーが発生しました');
+  });
+}
