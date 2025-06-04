@@ -110,9 +110,10 @@ async function submitAnswers() {
   document.getElementById('next-button').disabled = true;
   document.getElementById('back-button').disabled = true;
 
-  const name = document.getElementById('name').value;
-  const grade = document.getElementById('grade').value;
-  const cls = document.getElementById('class').value;
+  const name = encodeURIComponent(document.getElementById('name').value);
+  const grade = encodeURIComponent(document.getElementById('grade').value);
+  const cls = encodeURIComponent(document.getElementById('class').value);
+  const answersStr = encodeURIComponent(answers.join(','));
 
   const score = quizData.reduce((acc, q, i) =>
     acc + (answers[i] === q.answer ? 1 : 0), 0);
@@ -122,26 +123,16 @@ async function submitAnswers() {
       (answers[i] !== q.answer
         ? `${q.question}=${answers[i] || "未入力"}（正:${q.answer}）`
         : null))
-    .filter(Boolean);
+    .filter(Boolean)
+    .join('; ');
+  const reason = encodeURIComponent(incorrect);
 
-  const payload = {
-    name,
-    grade,
-    class: cls,
-    answers,
-    score,
-    reason: incorrect.join('; ')
-  };
+  const url = `${GAS_URL}?name=${name}&grade=${grade}&class=${cls}&answers=${answersStr}&score=${score}&reason=${reason}`;
 
   let success = false;
   for (let i = 0; i < 3; i++) {
     try {
-      await fetch(GAS_URL, {
-        method: 'POST',
-        mode: 'cors',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
+      await fetch(url);
       success = true;
       break;
     } catch (err) {
@@ -155,6 +146,6 @@ async function submitAnswers() {
     return;
   }
 
-  alert(`${quizData.length}問中${score}問正解でした。\n\n【間違い】\n${incorrect.join("\n") || "なし"}`);
+  alert(`${quizData.length}問中${score}問正解でした。\n\n【間違い】\n${incorrect || "なし"}`);
   location.reload();
 }
