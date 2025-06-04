@@ -6,7 +6,7 @@ for (let i = 1; i <= 20; i++) {
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbzaEbohb33NPS8iYg8YmCB46xcd99OwvjuV28EUXt9elnQ7DTzaFJkcmF8r0ez_BIXEZQ/exec';
 
 let currentQuestionIndex = 0;
-let answers = [];
+let answers = Array(quizData.length).fill("");
 let timerInterval;
 let remainingTime = 60 * 3; // 3分
 
@@ -19,27 +19,22 @@ document.getElementById('user-form').addEventListener('submit', function (e) {
   showQuestion();
 });
 
-// 離脱警告（リロード・タブ閉じ防止）
-window.addEventListener('beforeunload', (e) => {
-  e.preventDefault();
-  e.returnValue = '';
-});
-
 function showQuestion() {
   if (currentQuestionIndex >= quizData.length) {
-    submitAnswers();
+    confirmSubmit();
     return;
   }
+
   const q = quizData[currentQuestionIndex];
   document.getElementById('question-text').innerHTML = `\\(${q.question.replace("^2", "^{2}")}\\) =`;
-  document.getElementById('answer-input').value = '';
-  if (window.MathJax) {
-    MathJax.typesetPromise();
-  }
+  document.getElementById('answer-input').value = answers[currentQuestionIndex] || '';
+  document.getElementById('back-button').style.display = currentQuestionIndex > 0 ? 'inline-block' : 'none';
+
+  if (window.MathJax) MathJax.typesetPromise();
 }
 
 document.getElementById('next-button').addEventListener('click', nextQuestion);
-
+document.getElementById('back-button').addEventListener('click', previousQuestion);
 document.addEventListener('keydown', function (e) {
   if (e.key === 'Enter') {
     e.preventDefault();
@@ -53,8 +48,15 @@ function nextQuestion() {
     alert("答えを入力してください");
     return;
   }
-  answers.push(input);
+  answers[currentQuestionIndex] = input;
   currentQuestionIndex++;
+  showQuestion();
+}
+
+function previousQuestion() {
+  const input = document.getElementById('answer-input').value.trim();
+  answers[currentQuestionIndex] = input;
+  currentQuestionIndex--;
   showQuestion();
 }
 
@@ -74,7 +76,7 @@ function clearInput() {
 
 function handleVisibilityChange() {
   if (document.visibilityState === 'hidden') {
-    submitAnswers();
+    confirmSubmit();
   }
 }
 
@@ -85,7 +87,7 @@ function startTimer() {
     updateTimerDisplay();
     if (remainingTime <= 0) {
       clearInterval(timerInterval);
-      submitAnswers();
+      confirmSubmit();
     }
   }, 1000);
 }
@@ -96,17 +98,21 @@ function updateTimerDisplay() {
   document.getElementById('timer').textContent = `残り時間: ${min}:${sec.toString().padStart(2, '0')}`;
 }
 
+function confirmSubmit() {
+  const proceed = confirm("解答を送信しますか？");
+  if (proceed) {
+    submitAnswers();
+  }
+}
+
 async function submitAnswers() {
   clearInterval(timerInterval);
-  document.removeEventListener("visibilitychange", handleVisibilityChange);
+  document.getElementById('next-button').disabled = true;
+  document.getElementById('back-button').disabled = true;
 
   const name = document.getElementById('name').value;
   const grade = document.getElementById('grade').value;
   const cls = document.getElementById('class').value;
-
-  while (answers.length < quizData.length) {
-    answers.push("");
-  }
 
   const score = quizData.reduce((acc, q, i) =>
     acc + (answers[i] === q.answer ? 1 : 0), 0);
@@ -118,41 +124,37 @@ async function submitAnswers() {
         : null))
     .filter(Boolean);
 
-  const query = new URLSearchParams({
+  const payload = {
     name,
     grade,
     class: cls,
-    answers: answers.join(','),
-    score: score.toString(),
+    answers,
+    score,
     reason: incorrect.join('; ')
-  });
-
-  const url = `${GAS_URL}?${query.toString()}`;
-
-  const nextButton = document.getElementById('next-button');
-  nextButton.disabled = true;
-  nextButton.textContent = "送信中...";
+  };
 
   let success = false;
-  for (let attempt = 1; attempt <= 3; attempt++) {
+  for (let i = 0; i < 3; i++) {
     try {
-      await fetch(url, {
-        method: 'GET',
-        mode: 'no-cors'
+      await fetch(GAS_URL, {
+        method: 'POST',
+        mode: 'cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
       });
       success = true;
       break;
-    } catch (e) {
-      console.warn(`送信失敗（${attempt}回目）`, e);
-      await new Promise(r => setTimeout(r, 1000));
+    } catch (err) {
+      console.warn(`送信リトライ ${i + 1} 回目失敗`);
+      await new Promise(resolve => setTimeout(resolve, 1000));
     }
   }
 
   if (!success) {
-    alert("送信に失敗しました。ネット接続を確認してください。");
-  } else {
-    alert(`${quizData.length}問中${score}問正解でした。\n\n【間違い】\n${incorrect.join("\n") || "なし"}`);
+    alert("送信に失敗しました。通信環境を確認してください。");
+    return;
   }
 
+  alert(`${quizData.length}問中${score}問正解でした。\n\n【間違い】\n${incorrect.join("\n") || "なし"}`);
   location.reload();
 }
