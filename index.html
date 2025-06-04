@@ -24,10 +24,12 @@
 
   <div id="quiz-screen" style="display: none;">
     <div id="timer"></div>
+
     <div id="question-container">
       <div id="question-text"></div>
       <input id="answer-input" type="text" readonly>
     </div>
+
     <div id="keypad">
       <button onclick="insertSymbol('7')">7</button>
       <button onclick="insertSymbol('8')">8</button>
@@ -52,9 +54,11 @@
       <button onclick="backspace()">←</button>
       <button onclick="clearInput()">クリア</button>
     </div>
-    <button id="back-button" style="display: none;">戻る</button>
-　　<button id="next-button">次へ</button>
 
+    <div class="button-group">
+      <button id="back-button" style="display: none;">戻る</button>
+      <button id="next-button">次へ</button>
+    </div>
   </div>
 
   <script src="main.js"></script>
