@@ -19,6 +19,12 @@ document.getElementById('user-form').addEventListener('submit', function (e) {
   showQuestion();
 });
 
+// 離脱警告（リロード・タブ閉じ防止）
+window.addEventListener('beforeunload', (e) => {
+  e.preventDefault();
+  e.returnValue = '';
+});
+
 function showQuestion() {
   if (currentQuestionIndex >= quizData.length) {
     submitAnswers();
@@ -27,7 +33,6 @@ function showQuestion() {
   const q = quizData[currentQuestionIndex];
   document.getElementById('question-text').innerHTML = `\\(${q.question.replace("^2", "^{2}")}\\) =`;
   document.getElementById('answer-input').value = '';
-  // MathJax再描画
   if (window.MathJax) {
     MathJax.typesetPromise();
   }
@@ -91,8 +96,9 @@ function updateTimerDisplay() {
   document.getElementById('timer').textContent = `残り時間: ${min}:${sec.toString().padStart(2, '0')}`;
 }
 
-function submitAnswers() {
+async function submitAnswers() {
   clearInterval(timerInterval);
+  document.removeEventListener("visibilitychange", handleVisibilityChange);
 
   const name = document.getElementById('name').value;
   const grade = document.getElementById('grade').value;
@@ -121,12 +127,32 @@ function submitAnswers() {
     reason: incorrect.join('; ')
   });
 
-  fetch(`${GAS_URL}?${query.toString()}`, {
-    method: 'GET',
-    mode: 'no-cors'
-  });
+  const url = `${GAS_URL}?${query.toString()}`;
 
-  // 成績表示（送信成功確認できないため即時表示）
-  alert(`${quizData.length}問中${score}問正解でした。\n\n【間違い】\n${incorrect.join("\n") || "なし"}`);
+  const nextButton = document.getElementById('next-button');
+  nextButton.disabled = true;
+  nextButton.textContent = "送信中...";
+
+  let success = false;
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    try {
+      await fetch(url, {
+        method: 'GET',
+        mode: 'no-cors'
+      });
+      success = true;
+      break;
+    } catch (e) {
+      console.warn(`送信失敗（${attempt}回目）`, e);
+      await new Promise(r => setTimeout(r, 1000));
+    }
+  }
+
+  if (!success) {
+    alert("送信に失敗しました。ネット接続を確認してください。");
+  } else {
+    alert(`${quizData.length}問中${score}問正解でした。\n\n【間違い】\n${incorrect.join("\n") || "なし"}`);
+  }
+
   location.reload();
 }
