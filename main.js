@@ -113,6 +113,7 @@ async function submitAnswers() {
   const name = encodeURIComponent(document.getElementById('name').value);
   const grade = encodeURIComponent(document.getElementById('grade').value);
   const cls = encodeURIComponent(document.getElementById('class').value);
+  const number = encodeURIComponent(document.getElementById('number').value);
   const answersStr = encodeURIComponent(answers.join(','));
 
   const score = quizData.reduce((acc, q, i) =>
@@ -127,12 +128,12 @@ async function submitAnswers() {
     .join('; ');
   const reason = encodeURIComponent(incorrect);
 
-    const url = `${GAS_URL}?name=${name}&grade=${grade}&class=${cls}&answers=${answersStr}&score=${score}&reason=${reason}`;
+  const url = `${GAS_URL}?name=${name}&grade=${grade}&class=${cls}&number=${number}&answers=${answersStr}&score=${score}&reason=${reason}`;
 
   let success = false;
   for (let i = 0; i < 3; i++) {
     try {
-      await fetch(url, { method: 'GET', mode: 'no-cors' }); // ← 修正済み
+      await fetch(url, { method: 'GET', mode: 'no-cors' });
       success = true;
       break;
     } catch (err) {
@@ -140,7 +141,6 @@ async function submitAnswers() {
       await new Promise(resolve => setTimeout(resolve, 1000));
     }
   }
-
 
   if (!success) {
     alert("送信に失敗しました。通信環境を確認してください。");
