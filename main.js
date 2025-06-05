@@ -10,6 +10,16 @@ let answers = Array(quizData.length).fill("");
 let timerInterval;
 let remainingTime = 60 * 3; // 3分
 
+// 出席番号セレクト生成（1〜40）
+window.addEventListener('DOMContentLoaded', () => {
+  const numberSelect = document.getElementById('number');
+  for (let i = 1; i <= 40; i++) {
+    const opt = document.createElement('option');
+    opt.value = opt.textContent = i;
+    numberSelect.appendChild(opt);
+  }
+});
+
 document.getElementById('user-form').addEventListener('submit', function (e) {
   e.preventDefault();
   document.getElementById('start-screen').style.display = 'none';
