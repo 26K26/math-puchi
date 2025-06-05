@@ -17,7 +17,25 @@
     <form id="user-form">
       <label>名前: <input type="text" id="name" required></label><br>
       <label>学年: <input type="text" id="grade" required></label><br>
-      <label>クラス: <input type="text" id="class" required></label><br>
+
+      <label>クラス:
+        <select id="class" required>
+          <option value="">選択してください</option>
+          <option value="1年1組">1年1組</option>
+          <option value="1年2組">1年2組</option>
+          <option value="2年1組">2年1組</option>
+          <option value="2年2組">2年2組</option>
+          <!-- 必要に応じて追加 -->
+        </select>
+      </label><br>
+
+      <label>出席番号:
+        <select id="number" required>
+          <option value="">選択してください</option>
+          <!-- JSで1〜40を自動挿入予定 -->
+        </select>
+      </label><br>
+
       <button type="submit">開始</button>
     </form>
   </div>
@@ -60,6 +78,19 @@
       <button id="next-button">次へ</button>
     </div>
   </div>
+
+  <script>
+    // 出席番号（1〜40）を動的に追加
+    window.addEventListener('DOMContentLoaded', () => {
+      const numberSelect = document.getElementById('number');
+      for (let i = 1; i <= 40; i++) {
+        const option = document.createElement('option');
+        option.value = i;
+        option.textContent = `${i}番`;
+        numberSelect.appendChild(option);
+      }
+    });
+  </script>
 
   <script src="main.js"></script>
 </body>
