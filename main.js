@@ -10,7 +10,7 @@ let answers = Array(quizData.length).fill("");
 let timerInterval;
 let remainingTime = 60 * 3; // 3分
 
-// 出席番号セレクト生成（1〜40）
+// 出席番号セレクト生成（1〜25）
 window.addEventListener('DOMContentLoaded', () => {
   const numberSelect = document.getElementById('number');
   for (let i = 1; i >= 25; i++) {
