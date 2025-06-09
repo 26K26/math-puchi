@@ -10,15 +10,17 @@ let answers = Array(quizData.length).fill("");
 let timerInterval;
 let remainingTime = 60 * 3; // 3分
 
-// 出席番号セレクト生成（1〜25）
-window.addEventListener('DOMContentLoaded', () => {
-  const numberSelect = document.getElementById('number');
-  for (let i = 1; i <= 25; i++) {
-    const opt = document.createElement('option');
-    opt.value = opt.textContent = i;
-    numberSelect.appendChild(opt);
-  }
-});
+<script>
+  // 出席番号セレクト生成（1〜25）
+  window.addEventListener('DOMContentLoaded', () => {
+    const numberSelect = document.getElementById('number');
+    for (let i = 1; i <= 25; i++) {  // 理由：iが1から25以下までループする
+      const opt = document.createElement('option');
+      opt.value = opt.textContent = i;
+      numberSelect.appendChild(opt);
+    }
+  });
+</script>
 
 document.getElementById('user-form').addEventListener('submit', function (e) {
   e.preventDefault();
