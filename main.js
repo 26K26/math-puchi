@@ -152,7 +152,7 @@ async function submitAnswers() {
     .join('; ');
   const reason = encodeURIComponent(incorrect);
 
-  const url = `${GAS_URL}?name=${name}&grade=${grade}&class=${cls}&number=${number}&answers=${answersStr}&score=${score}&reason=${reason}`;
+  const url = `${GAS_URL}?name=${name}&grade=${grade}&classname=${cls}&number=${number}&answers=${answersStr}&score=${score}&reason=${reason}`;
 
   let success = false;
   for (let i = 0; i < 3; i++) {
