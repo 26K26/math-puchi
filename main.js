@@ -10,23 +10,37 @@ let answers = Array(quizData.length).fill("");
 let timerInterval;
 let remainingTime = 60 * 3; // 3分
 
-// 出席番号セレクト生成（1〜40）
+// ページ読み込み時
 window.addEventListener('DOMContentLoaded', () => {
+  // 出席番号セレクト生成（1〜40）
   const numberSelect = document.getElementById('number');
   for (let i = 1; i <= 40; i++) {
     const opt = document.createElement('option');
-    opt.value = opt.textContent = i;
+    opt.value = i;
+    opt.textContent = i;
     numberSelect.appendChild(opt);
   }
-});
 
-document.getElementById('user-form').addEventListener('submit', function (e) {
-  e.preventDefault();
-  document.getElementById('start-screen').style.display = 'none';
-  document.getElementById('quiz-screen').style.display = 'block';
-  document.addEventListener("visibilitychange", handleVisibilityChange);
-  startTimer();
-  showQuestion();
+  // フォーム送信（開始ボタン）
+  document.getElementById('user-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+
+    const name = document.getElementById('name').value.trim();
+    const grade = document.getElementById('grade').value.trim();
+    const cls = document.getElementById('class').value;
+    const number = document.getElementById('number').value;
+
+    if (!name || !grade || !cls || !number) {
+      alert("すべての項目を入力してください。");
+      return;
+    }
+
+    document.getElementById('start-screen').style.display = 'none';
+    document.getElementById('quiz-screen').style.display = 'block';
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    startTimer();
+    showQuestion();
+  });
 });
 
 function showQuestion() {
