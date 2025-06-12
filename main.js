@@ -14,7 +14,7 @@ let remainingTime = 60 * 3; // 3分
 window.addEventListener('DOMContentLoaded', () => {
   // 出席番号セレクト生成（1〜40）
   const numberSelect = document.getElementById('number');
-  for (let i = 1; i <= 40; i++) {
+  for (let i = 1; i <= 25; i++) {
     const opt = document.createElement('option');
     opt.value = i;
     opt.textContent = i;
