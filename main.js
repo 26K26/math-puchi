@@ -10,37 +10,35 @@ let answers = Array(quizData.length).fill("");
 let timerInterval;
 let remainingTime = 60 * 3; // 3分
 
-// ページ読み込み時
+// 出席番号セレクト生成（1〜40）
 window.addEventListener('DOMContentLoaded', () => {
-  // 出席番号セレクト生成（1〜40）
   const numberSelect = document.getElementById('number');
-  for (let i = 1; i <= 25; i++) {
+  for (let i = 1; i <= 40; i++) {
     const opt = document.createElement('option');
-    opt.value = i;
-    opt.textContent = i;
+    opt.value = opt.textContent = i;
     numberSelect.appendChild(opt);
   }
+});
 
-  // フォーム送信（開始ボタン）
-  document.getElementById('user-form').addEventListener('submit', function (e) {
-    e.preventDefault();
+document.getElementById('user-form').addEventListener('submit', function (e) {
+  e.preventDefault();
 
-    const name = document.getElementById('name').value.trim();
-    const grade = document.getElementById('grade').value.trim();
-    const cls = document.getElementById('class').value;
-    const number = document.getElementById('number').value;
+  // 入力チェック
+  const name = document.getElementById('name').value.trim();
+  const grade = document.getElementById('grade').value.trim();
+  const className = document.getElementById('class').value;
+  const number = document.getElementById('number').value;
 
-    if (!name || !grade || !cls || !number) {
-      alert("すべての項目を入力してください。");
-      return;
-    }
+  if (!name || !grade || !className || !number) {
+    alert("すべての項目を入力してください。");
+    return;
+  }
 
-    document.getElementById('start-screen').style.display = 'none';
-    document.getElementById('quiz-screen').style.display = 'block';
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-    startTimer();
-    showQuestion();
-  });
+  document.getElementById('start-screen').style.display = 'none';
+  document.getElementById('quiz-screen').style.display = 'block';
+  document.addEventListener("visibilitychange", handleVisibilityChange);
+  startTimer();
+  showQuestion();
 });
 
 function showQuestion() {
@@ -136,7 +134,7 @@ async function submitAnswers() {
 
   const name = encodeURIComponent(document.getElementById('name').value);
   const grade = encodeURIComponent(document.getElementById('grade').value);
-  const cls = encodeURIComponent(document.getElementById('class').value);
+  const className = encodeURIComponent(document.getElementById('class').value);
   const number = encodeURIComponent(document.getElementById('number').value);
   const answersStr = encodeURIComponent(answers.join(','));
 
@@ -152,7 +150,7 @@ async function submitAnswers() {
     .join('; ');
   const reason = encodeURIComponent(incorrect);
 
-  const url = `${GAS_URL}?name=${name}&grade=${grade}&class=${cls}&number=${number}&answers=${answersStr}&score=${score}&reason=${reason}`;
+  const url = `${GAS_URL}?name=${name}&grade=${grade}&className=${className}&number=${number}&answers=${answersStr}&score=${score}&reason=${reason}`;
 
   let success = false;
   for (let i = 0; i < 3; i++) {
