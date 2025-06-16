@@ -1,23 +1,16 @@
 const quizData = [];
 for (let i = 1; i <= 20; i++) {
-  quizData.push({ question: `${i}^2`, answer: (i * i).toString() });
+  quizData.push({ question: ${i}^2, answer: (i * i).toString() });
 }
 
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbzaEbohb33NPS8iYg8YmCB46xcd99OwvjuV28EUXt9elnQ7DTzaFJkcmF8r0ez_BIXEZQ/exec';
-
-// 1〜20の平方数から問題生成しランダム並び替え
-const quizData = [];
-for (let i = 1; i <= 20; i++) {
-  const n = i * i;
-  quizData.push({ question: `√${n}（ただし、数字は整数に限る）`, answer: `${i}` });
-}
-quizData.sort(() => Math.random() - 0.5);
 
 let currentQuestionIndex = 0;
 let answers = Array(quizData.length).fill("");
 let timerInterval;
 let remainingTime = 60 * 3; // 3分
 
+// 出席番号セレクト生成（1〜40）
 window.addEventListener('DOMContentLoaded', () => {
   const numberSelect = document.getElementById('number');
   for (let i = 1; i <= 25; i++) {
@@ -30,6 +23,7 @@ window.addEventListener('DOMContentLoaded', () => {
 document.getElementById('user-form').addEventListener('submit', function (e) {
   e.preventDefault();
 
+  // 入力チェック
   const name = document.getElementById('name').value.trim();
   const grade = document.getElementById('grade').value.trim();
   const className = document.getElementById('class').value;
@@ -54,7 +48,7 @@ function showQuestion() {
   }
 
   const q = quizData[currentQuestionIndex];
-  document.getElementById('question-text').innerHTML = `\\(${q.question.replace("√", "\\sqrt{").replace("（", "}（")}\\) =`;
+  document.getElementById('question-text').innerHTML = \\(${q.question.replace("^2", "^{2}")}\\) =;
   document.getElementById('answer-input').value = answers[currentQuestionIndex] || '';
   document.getElementById('back-button').style.display = currentQuestionIndex > 0 ? 'inline-block' : 'none';
 
@@ -123,7 +117,7 @@ function startTimer() {
 function updateTimerDisplay() {
   const min = Math.floor(remainingTime / 60);
   const sec = remainingTime % 60;
-  document.getElementById('timer').textContent = `残り時間: ${min}:${sec.toString().padStart(2, '0')}`;
+  document.getElementById('timer').textContent = 残り時間: ${min}:${sec.toString().padStart(2, '0')};
 }
 
 function confirmSubmit() {
@@ -150,13 +144,13 @@ async function submitAnswers() {
   const incorrect = quizData
     .map((q, i) =>
       (answers[i] !== q.answer
-        ? `${q.question}=${answers[i] || "未入力"}（正:${q.answer}）`
+        ? ${q.question}=${answers[i] || "未入力"}（正:${q.answer}）
         : null))
     .filter(Boolean)
     .join('; ');
   const reason = encodeURIComponent(incorrect);
 
-  const url = `${GAS_URL}?name=${name}&grade=${grade}&className=${className}&number=${number}&answers=${answersStr}&score=${score}&reason=${reason}`;
+  const url = ${GAS_URL}?name=${name}&grade=${grade}&className=${className}&number=${number}&answers=${answersStr}&score=${score}&reason=${reason};
 
   let success = false;
   for (let i = 0; i < 3; i++) {
@@ -164,7 +158,8 @@ async function submitAnswers() {
       await fetch(url, { method: 'GET', mode: 'no-cors' });
       success = true;
       break;
-    } catch {
+    } catch (err) {
+      console.warn(送信リトライ ${i + 1} 回目失敗);
       await new Promise(resolve => setTimeout(resolve, 1000));
     }
   }
@@ -174,6 +169,6 @@ async function submitAnswers() {
     return;
   }
 
-  alert(`${quizData.length}問中${score}問正解でした。\n\n【間違い】\n${incorrect || "なし"}`);
+  alert(${quizData.length}問中${score}問正解でした。\n\n【間違い】\n${incorrect || "なし"});
   location.reload();
 }
