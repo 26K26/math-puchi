@@ -5,12 +5,19 @@ for (let i = 1; i <= 20; i++) {
 
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbzaEbohb33NPS8iYg8YmCB46xcd99OwvjuV28EUXt9elnQ7DTzaFJkcmF8r0ez_BIXEZQ/exec';
 
+// 1〜20の平方数から問題生成しランダム並び替え
+const quizData = [];
+for (let i = 1; i <= 20; i++) {
+  const n = i * i;
+  quizData.push({ question: `√${n}（ただし、数字は整数に限る）`, answer: `${i}` });
+}
+quizData.sort(() => Math.random() - 0.5);
+
 let currentQuestionIndex = 0;
 let answers = Array(quizData.length).fill("");
 let timerInterval;
 let remainingTime = 60 * 3; // 3分
 
-// 出席番号セレクト生成（1〜40）
 window.addEventListener('DOMContentLoaded', () => {
   const numberSelect = document.getElementById('number');
   for (let i = 1; i <= 25; i++) {
@@ -23,7 +30,6 @@ window.addEventListener('DOMContentLoaded', () => {
 document.getElementById('user-form').addEventListener('submit', function (e) {
   e.preventDefault();
 
-  // 入力チェック
   const name = document.getElementById('name').value.trim();
   const grade = document.getElementById('grade').value.trim();
   const className = document.getElementById('class').value;
@@ -48,7 +54,7 @@ function showQuestion() {
   }
 
   const q = quizData[currentQuestionIndex];
-  document.getElementById('question-text').innerHTML = `\\(${q.question.replace("^2", "^{2}")}\\) =`;
+  document.getElementById('question-text').innerHTML = `\\(${q.question.replace("√", "\\sqrt{").replace("（", "}（")}\\) =`;
   document.getElementById('answer-input').value = answers[currentQuestionIndex] || '';
   document.getElementById('back-button').style.display = currentQuestionIndex > 0 ? 'inline-block' : 'none';
 
@@ -158,8 +164,7 @@ async function submitAnswers() {
       await fetch(url, { method: 'GET', mode: 'no-cors' });
       success = true;
       break;
-    } catch (err) {
-      console.warn(`送信リトライ ${i + 1} 回目失敗`);
+    } catch {
       await new Promise(resolve => setTimeout(resolve, 1000));
     }
   }
